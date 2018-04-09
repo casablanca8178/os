@@ -6,8 +6,8 @@
 ; Add IDT, clock IRQ,  in kernel
 ; Reorganize files into directories
 ; Copy to Sector 0 (C0:H0:S1)
-; 7/17/2013
-; 08/08/2016
+; 04/17/2017
+
 
 	;bit16			;16 bit by default
 	org 0x7c00
@@ -37,7 +37,7 @@ start:
 ;;cls
 	mov ah, 06h				;Function 06h (scroll screen)
 	mov al, 0				;Scroll all lines
-	mov bh, 2fh				;Attribute (white on green) 
+	mov bh, 17h				;Attribute (white on green) 
 	mov ch, 0				;Upper left row is zero
 	mov cl, 0					;Upper left column is zero
 	mov dh, 24				;Lower left row is 24
@@ -47,15 +47,15 @@ start:
 				;Colors from 8: Gray LBlue LGreen LCyan LRed LMagenta Yellow BWhite
 
 ;;printHello
-	mov ah, 13h				;Function 13h (display string)
-	mov al, 1				;Write mode is zero
-	mov bh, 0				;Use video page of zero
-	mov bl, 2ah				;Attribute (lightgreen on green)
-	mov cx, mlen				;Character string length
-	mov dh, 0				;Position on row 0
-	mov dl, 0				;And column 0
-	lea bp, [msg]				;Load the offset address of string into BP
-	int 10h
+;	mov ah, 13h				;Function 13h (display string)
+;	mov al, 1				;Write mode is zero
+;	mov bh, 0				;Use video page of zero
+;	mov bl, 2ah				;Attribute (lightgreen on green)
+;	mov cx, mlen				;Character string length
+;	mov dh, 15				;Position on row 0
+;	mov dl, 0				;And column 0
+;	lea bp, [msg]				;Load the offset address of string into BP
+;	int 10h
 
 ;;moveCursor
 	mov ah, 2				;Function 02h (set cursor position)
@@ -64,12 +64,12 @@ start:
 	mov dl, 19h 				;col
 	int 10h
 
-	mov ah, 09h				;Function 09h (write a char at cursor position)
-	mov al, ' '				;char to write
+;	mov ah, 09h				;Function 09h (write a char at cursor position)
+;	mov al, ' '				;char to write
 ;	mov bh, 0
-	mov bl, 2eh				;color attr
-	mov cx, 1				;number of repeat
-	int 10h
+;	mov bl, 2eh				;color attr
+;	mov cx, 1				;number of repeat
+;	int 10h
 
 		
 ;;load loader.bin from sector 35 and put in memory 0x8000:0000
@@ -78,7 +78,10 @@ start:
 
 ;;section	.data
 
-msg	db 'IoTa, a real OS, version 0.b (c) ...'
+msg	db''
+
+
+
 mlen equ $-msg
 
 padding	times 510-($-$$) db 0		;to make MBR 512 bytes

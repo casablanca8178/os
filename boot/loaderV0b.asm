@@ -6,8 +6,8 @@
 ; IDT is moved to kernel
 ; Bios only, No DOS, No Linux, No any OS
 ; Copy to Sector 35 (CHS 0:1:18)
-; 7/17/2013
-; 08/08/2016
+; 04/17/2017
+
 
 	org 00h						;Set addressing to begin at 00H for actual run
 	[bits 16]						;by default bits 16	
@@ -110,13 +110,13 @@ start:
 ;		csVal 4, 8
 		
 ;dispstr:
-		mov bx,0xb800
-		mov es, bx						;cs=ds=0000 by default
-		lea si, [welMsg]					;load the offset address of string
-		mov di, 160						;skip 1 row ds:si to es:di
-		mov cx, welLen					;length of message string
-		cld								;clear DF (direction flag)
-		rep movsb						;move string to video memory
+		;mov bx,0xb800
+		;mov es, bx						;cs=ds=0000 by default
+		;lea si, [welMsg]					;load the offset address of string
+		;mov di, 160						;skip 1 row ds:si to es:di
+		;mov cx, welLen					;length of message string
+		;cld								;clear DF (direction flag)
+		;rep movsb						;move string to video memory
 
 ;;load loader.bin from sector 37 and put in memory 0x9000:0000
 		readSector BaseOfKernelFile, OffsetOfKernelFile, NumberOfSectors, 1, 2, 0
@@ -155,22 +155,22 @@ start:
 										;Int21Handeler uses $-$$,  must have section here		
 
 protected_code: 
-		mov ax,  GDT_video				; value is 0x18 (offset 24 bytes)
-		mov es, ax						; in 32bit mode, es=[GDT:ax] offset not ax value
+		;mov ax,  GDT_video				; value is 0x18 (offset 24 bytes)
+		;mov es, ax						; in 32bit mode, es=[GDT:ax] offset not ax value
 		
-		mov ax, GDT_data				;value is 0x10 (offset 16 bytes)
-		mov ds, ax						;data segment description is the 2nd in GDT			
+		;mov ax, GDT_data				;value is 0x10 (offset 16 bytes)
+		;mov ds, ax						;data segment description is the 2nd in GDT			
 										;need set ds for data
-		mov ss, ax
-		mov esp, TopOfStack
+		;mov ss, ax
+		;mov esp, TopOfStack
 				
-		lea	esi, [pmMsg]
-		add esi, BaseOfLoaderPhyAddr
+		;lea	esi, [pmMsg]
+		;add esi, BaseOfLoaderPhyAddr
 										;load the offset address of string
-		mov edi, 80 * 3					;skip 1.5 rows, ds:esi/es:edi 32 bits now
-		mov ecx, pmLen					;length of message string
-		cld								;clear DF (direction flag)
-		rep movsb						;move string to video memory
+		;mov edi, 80 * 3					;skip 1.5 rows, ds:esi/es:edi 32 bits now
+		;mov ecx, pmLen					;length of message string
+		;cld								;clear DF (direction flag)
+	;	rep movsb						;move string to video memory
 										;no bios int 10h in protected mode	
 
 ;============================================================
@@ -275,12 +275,12 @@ memCpy:
 LABEL_DATA_SEG:
 
 ; / = 0xf2 -- white on green
-welMsg	db ' /L/o/a/d/e/r/ /i/n/ /R/e/a/l/ /M/o/d/e/'
-csMsg db ' /a/t/ /8/0/0/0/'
+welMsg	db ''
+csMsg db ' '
 welLen equ $-welMsg
 
 ; . = 0xe2 -- yellow on green
-pmMsg db ' .-. .I.n. .P.r.o.t.e.c.t.e.d. .M.o.d.e. .N.o.w. .-.'
+pmMsg db ' '
 pmLen equ $-pmMsg
 
 ;;StackSpace:	times	1000h	db	0

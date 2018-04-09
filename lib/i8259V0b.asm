@@ -2,15 +2,15 @@
 ;For testing IRQ0 (clock) in protected mode
 ;Clock interrupt by default is int 08h but can not be used
 ;Redirect IRQ00 to int 40h
-; 7/17/2013
-; 08/08/2016
+; 04/17/2017
+
 										
 		[bits 32]							;must indicate
 [section .code32]							;must put a section	
 
 global	__init8259						;__ : asm util file, _ : c util file
-global	__int0x40
-
+global	__int0x30
+extern _inc_clock
 
 ;============================================================
 ; Func 1) -- void __init8259(), unmask IRQ0 and maps to int 40h
@@ -25,13 +25,13 @@ __init8259:
 		out	0A0h, al							;slave 8259, ICW1
 		call	io_wait
 
-		mov al, 0x00							;IRQ0 maps to 
+		mov al, 0x30							;IRQ0 maps to 0x40
 											;This is key step to link IRQ1 to INT XX
 											;lower 3 bits in ICW2 must be 0
 		out	21h, al							;master 8259, ICW2
 		call	io_wait
 
-		mov al, 0x00	 						;IRQ8 maps to 0x00
+		mov al, 0x38	 						;IRQ8 maps to 0x28
 		out	0a1h, al							;master 8259, ICW2
 		call	io_wait
 
@@ -50,7 +50,8 @@ __init8259:
 		out	0a1h, al							;slave 8259, ICW4
 		call	io_wait
 
-		mov	 al, 11111101b					;only open IRQ1=KBD
+		mov	 al, 11111110b					;only open IRQ0=CLK
+;		mov	 al, 11111111b					;only open IRQ1=KBD
 		out	21h, al							;master 8259, OCW1
 		call	io_wait
 
@@ -72,10 +73,11 @@ io_wait:
 ; Func 2) -- void __int0x40 (), very trivial
 ;============================================================
 
-__int0x40:
+__int0x30:
 
-		in al, 0x60							;8048 keyboard scancode
-		inc byte [es:722]						;row 6 col 1
+	;	in al, 0x60							;8048 keyboard scancode
+	;	inc byte [es:722]						;row 6 col 1
+	call  _inc_clock
 		mov al, 20h							;send EOI signal
 		out 20h, al							;end of this interrupt service
 		iret

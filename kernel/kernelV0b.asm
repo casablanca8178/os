@@ -3,15 +3,15 @@
 ; elf format in protected mode using asm and c
 ; Copy to Sector 37 (CHS 1:0:2)
 ; IDT and IRQ0 handler for clock as int 40h
-; 7/17/2013
-; 08/08/2016
+; 04/17/2017
+
 				
 				[bits 32]
 [section .text]
 
 extern __disp_str						;define in disp.asm __ : asm
 extern _begin						;define in util.c	_ : c
-extern __int0x40
+extern __int0x30
 
 global _start						; _start entry
 
@@ -21,13 +21,13 @@ _start:
 ; Part 1) -- set up GDT and IDT in kernel 
 ;============================================================
 		
-;set int 40h offset:
+;set int 30h offset:
 		xor	eax, eax
-		mov	 eax, __int0x40
+		mov	 eax, __int0x30
 ;;		add	eax, BaseOfKernelFilePhyAddr ; NO NEED in 32bit elf
-		mov word [IDT + 8*], ax		;int 40h = 64
+		mov word [IDT + 8*48], ax		;int 30h = 64
 		shr eax, 16
-		mov word [IDT + 8* + 6], ax
+		mov word [IDT + 8*48+ 6], ax
 
 										;could copy GDT from loader
 										;but to make it simple, redefine GDT
@@ -40,9 +40,9 @@ _start:
 ; Part 2) -- start from functions written in C 
 ;============================================================
 
-		push word [color_attr]
-		push dword kernelMsg
-		call	__disp_str
+		;push word [color_attr]
+		;push dword kernelMsg
+		;call	__disp_str
 
 		push dword [ver]				;push last parameter first
 		call _begin
@@ -50,9 +50,9 @@ _start:
 		mov ax, GDT_video
 		mov es, ax
 
-		mov al, 'a'
-		mov ah, 2ch
-		mov [es:722], ax				;es<-GDT_video
+		;mov al, 'a'
+		;mov ah, 2ch
+		;mov [es:722], ax				;es<-GDT_video
 		
 		sti							;must for IRQ1
 		jmp $						;stop PC
@@ -66,7 +66,7 @@ _start:
 		;align 32
 
 ver			dd	0bh					;iota version
-kernelMsg:	db	0ah, 0ah, "IoTa Kernel written in asm in elf format ", 0ah, 0ah, 0
+kernelMsg:	db	0ah, 0ah, " ", 0ah, 0ah, 0
 color_attr:	dw	0x002a				;push at least a word
 
 
@@ -131,13 +131,13 @@ gdt_base:	dd  GDT						;offset of GDT
 [section .idt]
 
 IDT:
-%rep XX
+%rep 0x30
 		dw 0							;each IDT entry is 8 bytes
 		dw GDT_code32
 		dw 0x8e00
 		dw 0
 %endrep
-.40h:									;has to reset
+.30h:									;has to reset
 		dw 0							;offset  lower 4
 		dw GDT_code32					;selector 
 		dw 0x8e00						;attr  ((%@ << 8) & 0FF00h)
