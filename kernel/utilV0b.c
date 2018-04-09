@@ -1,77 +1,86 @@
+//header of extern file defined in lib.asm  
+//void __disp_str(u8_t * string, u32_t  color);
+//void __disp_clk(u8_t * string, u32_t color);
+//void __init8259(); 
 
 #include "type.h"
+#include <stdio.h>
+#define	COLOR		0x000e	
 
-#define COLOR	0x001a	
+int hh,mm,ss,tick;
+char clk[8];				//sting for output clock
 
-/* header of extern file defined in lib.asm  
-void __disp_str(u8_t * string, u32_t  color);
-void __init8259(); */
+int _begin ()  {
 
-int  lasp_time=18;
-int ticks;
-int hour, minute, second;
-char *time ="00:00:00";
+	//initialize global variables
+	hh=0;
+	mm=0;
+	ss=0;
+	tick=0;
+	int i,j;
 
-
-int _begin (u32_t ver)  {
-
-	__disp_str("\n\n\n\n\n\n\n\n\n\xFF\xFF\xFF\xFF\xFF\xB2\xFF\xFF\xB2\xFF\xFF\xB2\xB2\xFF\n\xFF\xFF\xFF\xFF\xFF\xB2\xB2\xB2\xFF\xFF\xB2\xFF\xFF\xB2\n\xFF\xFF\xFF\xFF\xFF\xB2\xB2\xB2\xFF\xFF\xB2\xFF\xFF\xB2\n\xFF\xFF\xFF\xFF\xFF\xB2\xFF\xFF\xB2\xFF\xFF\xB2\xB2\xFF\n", COLOR);	
-        __disp_str(" \xFF\xFF\xC9\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBB\n\xFF\xFF\xFF\xBA\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xBA\n\xFF\xFF\xFF\xBA", COLOR);
-	__disp_str("(c) CaoLing's OS", COLOR);
-	__disp_str(" \xFF\xFF\xFF\xFF\xBA\n", COLOR);
-	__disp_str(" \xFF\xFF\xBA\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xBA\n \xFF\xFF\xBA\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xBA\n\xFF\xFF\xFF\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBC\n", COLOR);
+	//print name, OS LOGO, lines etc.,
+	__disp_str("         \xC9", COLOR);			//NW corner
+	for(i=0;i<60;i++)
+		__disp_str("\xCD", COLOR);			//double horizon line
+	__disp_str("\xBB        \n", COLOR);		//NE corner
 	
-	time ="00:00:00";
+	__disp_str("         \xBA               Jingjing Zhou's OS Version 0.b               \xBA        \n", COLOR);
+        ;i++;
+	__disp_str("         \xC8", COLOR);			//SW corner
+	for(i=0;i<60;i++)
+		__disp_str("\xCD", COLOR);			//double horizon line
+	__disp_str("\xBC        \n", COLOR);		//SE corner
 
-	__init8259();
-	ticks=0;
+	__init8259();								//initialize 8259
+	
 	return 0;
 }
 
-void _inc_clock(){
-ticks=ticks+1;
-		if(ticks==18){
-			ticks = 0;
-			time[7]= time[7] + 1;
-			if(time[7] == 58)
-				{ 
-					time[7] = 48;
-					time[6] = time[6]+1;
-					if(time[6]==54)
+void  _inc_clock(){
 
-				{ 	time[6] =48;
-					time[4]=time[4]+1;
-					if(time[4]==58)
-						{
-							time[4]=48;
-							time[3]=time[3]+1;
-							if(time[3]==54){
-								time[3]=48;
-									time[1]=time[1]+1;
-									if(time[0]==50 && time[1]==52)
-									{
-										time[0]=48;
-										time[1]=48;
-										}
-											else if(time[1] ==58)
-											{
-												time[1]=48;
-												time[0]=time[0]+1;
-													}
-												}
-											}
-										}
-									}
-							}
-        __disp_clk(time,COLOR);
+	tick=tick+1;				//increase tick
 
+	//reach a second, reprint the clock
+	if(tick%18==0){
+		ss=ss+1;
+		if(ss==60){
+			ss=0;
+			mm=mm+1;
+			if(mm==60){
+				mm=0;
+				hh=hh+1;
+				if(hh==25){
+					hh=0;
+					mm=0;
+					ss=0;
+				}
+			}
+		}
+
+		//construct output string for clock
+//		if(hh<10)
+//			sprintf(clk,"0%d",hh);
+//		else
+//			sprintf(clk,"%d",hh);
+//		if(mm<10)
+//			sprintf(clk,":0%d:",mm);
+//		else
+//			sprintf(clk,":%d:",mm);
+//		if(ss<10)
+//			sprintf(clk,"0%d",ss);
+//		else
+//			sprintf(clk,"%d",ss);
+
+		clk[0]=hh/10;
+		clk[1]=hh%10;
+		clk[2]=':';
+		clk[3]=mm/10;
+		clk[4]=mm%10;
+		clk[5]=':';
+		clk[6]=ss/10;
+		clk[7]=ss%10;
+		//update the clock
+		__disp_clk(clk, COLOR);
 	}
-
-										
-
-					
-
-			
-
-
-
+}

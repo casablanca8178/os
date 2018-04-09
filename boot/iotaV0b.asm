@@ -6,8 +6,8 @@
 ; Add IDT, clock IRQ,  in kernel
 ; Reorganize files into directories
 ; Copy to Sector 0 (C0:H0:S1)
-; 04/17/2017
-
+; 7/17/2013
+; 08/08/2016
 
 	;bit16			;16 bit by default
 	org 0x7c00
@@ -37,7 +37,7 @@ start:
 ;;cls
 	mov ah, 06h				;Function 06h (scroll screen)
 	mov al, 0				;Scroll all lines
-	mov bh, 17h				;Attribute (white on green) 
+	mov bh, 2fh				;Attribute (white on green) 
 	mov ch, 0				;Upper left row is zero
 	mov cl, 0					;Upper left column is zero
 	mov dh, 24				;Lower left row is 24
@@ -52,14 +52,14 @@ start:
 ;	mov bh, 0				;Use video page of zero
 ;	mov bl, 2ah				;Attribute (lightgreen on green)
 ;	mov cx, mlen				;Character string length
-;	mov dh, 15				;Position on row 0
+;	mov dh, 0				;Position on row 0
 ;	mov dl, 0				;And column 0
 ;	lea bp, [msg]				;Load the offset address of string into BP
 ;	int 10h
 
 ;;moveCursor
 	mov ah, 2				;Function 02h (set cursor position)
-;	mov bh, 0				;ActivePageNumber
+	mov bh, 0				;ActivePageNumber
 	mov dh, 04h 				;row
 	mov dl, 19h 				;col
 	int 10h
@@ -78,10 +78,7 @@ start:
 
 ;;section	.data
 
-msg	db''
-
-
-
+msg	db 'IoTa, a real OS, version 0.b (c) ...'
 mlen equ $-msg
 
 padding	times 510-($-$$) db 0		;to make MBR 512 bytes

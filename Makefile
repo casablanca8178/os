@@ -17,7 +17,7 @@
 
 VER			= V0b
 LSECTORS		= 1
-KSECTORS		= 5
+KSECTORS		= 15
 IMG			= a.img
 
 ASM			= nasm
@@ -25,6 +25,7 @@ BINFLAG		= -f bin -I boot/include/
 ELFFLAG		= -f elf
 CC				= gcc
 CCFLAG			= -m32 -c -I include/
+#CCFLAG			= -m32 -c -I -fno-stack-protector include/
 
 MBR			= boot/iotaV.asm
 LDR			= boot/loaderV.asm
@@ -77,8 +78,8 @@ $(LIBC_O) : $(LIBC_SRC)
 
 $(KER_BIN) : $(KER_SRC) $(LIBVID_O) $(LIB8259_O) $(LIBC_O)
 	$(ASM) $(ELFFLAG) -o $(KER_O) $(KER_SRC)
-	ld -m elf_i386 -Ttext 0x30400 -s -o $@ $(KER_O) $(LIBVID_O) $(LIB8259_O) $(LIBC_O)
-
+#	ld -m elf_i386 -Ttext 0x30400 -s -o $@ $(KER_O) $(LIBVID_O) $(LIB8259_O)  $(LIBC_O)
+	ld -m elf_i386 -Ttext 0x30400 -s -o $@ $(KER_O) $(LIBVID_O) $(LIB8259_O)  $(LIBC_O)
 clean :
 	rm -f $(MBR_BIN) $(LDR_BIN) $(KER_BIN) $(KER_O) $(LIBVID_O) $(LIB8259_O) $(LIBC_O)
 
